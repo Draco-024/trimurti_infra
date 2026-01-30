@@ -13,27 +13,25 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
   String _selectedCat = 'cat_all'; 
 
   final List<Map<String, dynamic>> _allProjects = [
-    // --- RESIDENTIAL (Your Work) ---
+    // --- RESIDENTIAL ---
     {'img': 'assets/images/chari_front.png', 'cat': 'cat_res', 'title': '10 Chari (Front View)', 'isAsset': true},
     {'img': 'assets/images/chari_3d.png', 'cat': 'cat_res', 'title': '10 Chari (3D Model)', 'isAsset': true},
     {'img': 'assets/images/kadapa_3d.png', 'cat': 'cat_res', 'title': 'Kadapa G+3 (3D STAAD)', 'isAsset': true},
     {'img': 'assets/images/kadapa_plan.png', 'cat': 'cat_res', 'title': 'Kadapa (Layout Plan)', 'isAsset': true},
     {'img': 'assets/images/g4_plan.png', 'cat': 'cat_res', 'title': 'G+4 Apt (Plan)', 'isAsset': true},
     
-    // --- RESIDENTIAL (Premium / Concepts) ---
+    // --- RESIDENTIAL (Concepts) ---
     {'img': 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600', 'cat': 'cat_res', 'title': 'Luxury Villa Concept', 'isAsset': false},
     {'img': 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600', 'cat': 'cat_res', 'title': 'Modern Duplex', 'isAsset': false},
     {'img': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600', 'cat': 'cat_res', 'title': 'Row House Design', 'isAsset': false},
 
-    // --- COMMERCIAL (Your Work) ---
+    // --- COMMERCIAL ---
     {'img': 'assets/images/mumbai_3d.png', 'cat': 'cat_com', 'title': 'Mumbai High-Rise (3D)', 'isAsset': true},
     {'img': 'assets/images/hotel_phil.png', 'cat': 'cat_com', 'title': 'Hotel G+8 (Philosophy)', 'isAsset': true},
-    
-    // --- COMMERCIAL (Premium / Concepts) ---
     {'img': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600', 'cat': 'cat_com', 'title': 'Corporate Hub Design', 'isAsset': false},
     {'img': 'https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=600', 'cat': 'cat_com', 'title': 'Shopping Complex', 'isAsset': false},
 
-    // --- TECHNICAL / STRUCTURAL ---
+    // --- TECHNICAL ---
     {'img': 'assets/images/chari_disp.png', 'cat': 'cat_tech', 'title': 'Chari (Displacement)', 'isAsset': true},
     {'img': 'assets/images/kadapa_bm.png', 'cat': 'cat_tech', 'title': 'Kadapa (Bending Moment)', 'isAsset': true},
     {'img': 'assets/images/g4_torsion.png', 'cat': 'cat_tech', 'title': 'G+4 (Torsion)', 'isAsset': true},
@@ -86,51 +84,65 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                 final project = displayProjects[index];
                 bool isAsset = project['isAsset'] as bool;
 
-                // ✅ ANIMATION: Staggered Fade In Up
+                // ✅ ANIMATION & CLICK ACTION
                 return _FadeInUp(
-                  delay: index * 50, // 50ms delay per item
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20), 
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        // LOGIC FOR ASSET VS NETWORK IMAGE
-                        isAsset
-                        ? Image.asset(
-                            project['img']!, 
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey.shade300, child: const Icon(Icons.broken_image, color: Colors.grey)),
+                  delay: index * 50, 
+                  child: GestureDetector(
+                    // ✅ FIX: TAP TO OPEN IMAGE
+                    onTap: () {
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(
+                          builder: (context) => _FullScreenImage(
+                            img: project['img'], 
+                            isAsset: isAsset,
+                            title: project['title'],
                           )
-                        : Image.network(
-                            project['img']!, 
-                            fit: BoxFit.cover,
-                            loadingBuilder: (ctx, child, progress) {
-                              if (progress == null) return child;
-                              return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor, strokeWidth: 2));
-                            },
-                            errorBuilder: (ctx, _, __) => Container(color: Colors.grey.shade300, child: const Center(child: Icon(Icons.wifi_off, color: Colors.grey))),
-                          ),
-                        
-                        // TITLE OVERLAY
-                        Positioned(
-                          bottom: 0, left: 0, right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
-                                colors: [Colors.black.withOpacity(0.9), Colors.transparent],
+                        )
+                      );
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20), 
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          isAsset
+                          ? Image.asset(
+                              project['img']!, 
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey.shade300, child: const Icon(Icons.broken_image, color: Colors.grey)),
+                            )
+                          : Image.network(
+                              project['img']!, 
+                              fit: BoxFit.cover,
+                              loadingBuilder: (ctx, child, progress) {
+                                if (progress == null) return child;
+                                return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor, strokeWidth: 2));
+                              },
+                              errorBuilder: (ctx, _, __) => Container(color: Colors.grey.shade300, child: const Center(child: Icon(Icons.wifi_off, color: Colors.grey))),
+                            ),
+                          
+                          // TITLE OVERLAY
+                          Positioned(
+                            bottom: 0, left: 0, right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.bottomCenter,
+                                  end: Alignment.topCenter,
+                                  colors: [Colors.black.withOpacity(0.9), Colors.transparent],
+                                ),
+                              ),
+                              child: Text(
+                                project['title']!, 
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.montserrat(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)
                               ),
                             ),
-                            child: Text(
-                              project['title']!, 
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.montserrat(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)
-                            ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -159,7 +171,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
   }
 }
 
-// ✅ HELPER: Staggered Animation Wrapper
+// ✅ HELPER: Staggered Animation
 class _FadeInUp extends StatefulWidget {
   final Widget child;
   final int delay;
@@ -197,6 +209,37 @@ class _FadeInUpState extends State<_FadeInUp> with SingleTickerProviderStateMixi
     return FadeTransition(
       opacity: _fade,
       child: SlideTransition(position: _slide, child: widget.child),
+    );
+  }
+}
+
+// ✅ NEW: Full Screen Viewer
+class _FullScreenImage extends StatelessWidget {
+  final String img;
+  final bool isAsset;
+  final String title;
+
+  const _FullScreenImage({required this.img, required this.isAsset, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Colors.black,
+        title: Text(title, style: GoogleFonts.montserrat(color: Colors.white, fontSize: 16)),
+      ),
+      body: Center(
+        child: InteractiveViewer(
+          panEnabled: true,
+          minScale: 0.5,
+          maxScale: 4.0,
+          child: isAsset
+            ? Image.asset(img, fit: BoxFit.contain)
+            : Image.network(img, fit: BoxFit.contain),
+        ),
+      ),
     );
   }
 }

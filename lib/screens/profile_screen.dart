@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // ✅ IMPORTED
 import 'package:trimurti_infra/main.dart'; 
 
 class ProfileScreen extends StatefulWidget {
@@ -17,8 +18,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // ✅ FIX: If Guest User, keep fields EMPTY but show placeholders.
-    // If user already saved data, show that data.
+    // Load current values
     if (userNameNotifier.value == "Guest User") {
       _nameCtrl.text = "";
       _phoneCtrl.text = "";
@@ -30,7 +30,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _saveProfile() {
+  // ✅ FIX: Save to Phone Storage
+  Future<void> _saveProfile() async {
     if (_nameCtrl.text.isEmpty || _addressCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Name and Address are required!"), backgroundColor: Colors.redAccent)
@@ -38,12 +39,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
+    // 1. Update State (Immediate)
     userNameNotifier.value = _nameCtrl.text;
     userPhoneNotifier.value = _phoneCtrl.text.isEmpty ? "+91 00000 00000" : _phoneCtrl.text;
     userAddressNotifier.value = _addressCtrl.text;
+
+    // 2. Save to Storage (Persistent)
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userName', userNameNotifier.value);
+    await prefs.setString('userPhone', userPhoneNotifier.value);
+    await prefs.setString('userAddress', userAddressNotifier.value);
     
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Profile Updated Successfully!"), backgroundColor: Colors.green)
+      const SnackBar(content: Text("Profile Saved Successfully!"), backgroundColor: Colors.green)
     );
     Navigator.pop(context);
   }
@@ -81,7 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               height: 50,
               child: FilledButton.icon(
-                onPressed: _saveProfile,
+                onPressed: _saveProfile, // Calls new async function
                 icon: const Icon(Icons.save),
                 label: const Text("SAVE CHANGES"),
               ),
@@ -97,7 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       controller: ctrl,
       keyboardType: isNumber ? TextInputType.phone : TextInputType.text,
       onChanged: (val) {
-        setState(() {}); // Update Avatar letter as you type
+        setState(() {}); // Update Avatar letter
       },
       decoration: InputDecoration(
         labelText: label,

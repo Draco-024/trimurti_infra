@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // ✅ IMPORTED
 
+// SCREEN IMPORTS
 import 'package:trimurti_infra/screens/splash_screen.dart';
 import 'package:trimurti_infra/screens/home_screen.dart';
 import 'package:trimurti_infra/screens/services_screen.dart';
 import 'package:trimurti_infra/screens/portfolio_screen.dart';
 import 'package:trimurti_infra/screens/enquiry_screen.dart';
 
-// --- GLOBAL STATE ---
+// --- 1. GLOBAL STATE ---
 final ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier(ThemeMode.light);
 final ValueNotifier<Color> seedColorNotifier = ValueNotifier(const Color(0xFF1A237E)); 
 final ValueNotifier<String> languageNotifier = ValueNotifier('en');
 
-// --- USER DATA ---
+// --- 2. USER DATA ---
 final ValueNotifier<String> userNameNotifier = ValueNotifier("Guest User");
 final ValueNotifier<String> userPhoneNotifier = ValueNotifier("+91 00000 00000");
 final ValueNotifier<String> userAddressNotifier = ValueNotifier("Solapur, Maharashtra");
-// (Image Logic Removed as requested)
-final ValueNotifier<String?> userProfilePicNotifier = ValueNotifier(null); 
 
+// --- 3. DICTIONARY ---
 final Map<String, Map<String, String>> translations = {
   'en': {
     'home': 'Home', 'services': 'Services', 'portfolio': 'Portfolio', 'enquiry': 'Enquiry', 'rates': 'Rate Card',
@@ -42,7 +43,17 @@ String t(String key) {
   return translations[languageNotifier.value]?[key] ?? key;
 }
 
-void main() {
+// ✅ FIX: Load saved data when app starts
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Load Data from Storage
+  // If this throws an error, make sure you added shared_preferences to pubspec.yaml
+  final prefs = await SharedPreferences.getInstance();
+  userNameNotifier.value = prefs.getString('userName') ?? "Guest User";
+  userPhoneNotifier.value = prefs.getString('userPhone') ?? "+91 00000 00000";
+  userAddressNotifier.value = prefs.getString('userAddress') ?? "Solapur, Maharashtra";
+
   runApp(const TrimurtiApp());
 }
 
