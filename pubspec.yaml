@@ -1,0 +1,37 @@
+name: trimurti_infra
+description: "Civil Engineering Design & Structural Consultancy App."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # ✅ FIXED: Aligned to the left (same level as 'flutter')
+  image_picker: ^1.0.0
+
+  # Icons
+  cupertino_icons: ^1.0.8
+  
+  # Fonts (Montserrat & Lato)
+  google_fonts: ^6.1.0
+  
+  # For WhatsApp, Calls, Email
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+# --- FLUTTER SPECIFIC SETTINGS ---
+flutter:
+  uses-material-design: true
+
+  # ⚠️ ASSETS MUST BE HERE (Not under dependencies)
+  assets:
+    - assets/images/
